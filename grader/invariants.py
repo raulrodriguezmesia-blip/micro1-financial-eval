@@ -70,6 +70,7 @@ def validate_task(
     if request_id and UUID_RE.match(str(request_id)):
         passed.append("UUID_CHECK")
     else:
+        guardrail = True
         rejected_reason = rejected_reason or f"Tarea {task_id}: UUID_CHECK falló (requestId inválido)"
 
     # --- TX_LIMIT_CHECK ---
