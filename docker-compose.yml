@@ -1,0 +1,45 @@
+# =============================================================================
+# docker-compose.yml — micro1-financial-eval
+# Orquesta la ejecución de la suite de pruebas y el servidor MCP en contenedores
+# aislados, con cobertura de código (coverage.py) incluida.
+# =============================================================================
+services:
+  # -----------------------------------------------------------
+  # Servicio: suite de evaluación con cobertura de código
+  # -----------------------------------------------------------
+  eval:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: micro1-financial-eval
+    working_dir: /app
+    command: >
+      sh -c "coverage run -m pytest tests/ -v --cov=grader --cov=mcp_server --cov-report=term --cov-report=html:htmlcov && coverage report"
+    volumes:
+      - ./results:/app/results:rw
+      - ./htmlcov:/app/htmlcov:rw
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - finnetwork
+
+  # -----------------------------------------------------------
+  # Servicio: servidor MCP adversario (FastMCP)
+  # -----------------------------------------------------------
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: micro1-financial-eval-mcp
+    working_dir: /app
+    command: python -m mcp_server.server
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - finnetwork
+
+networks:
+  finnetwork:
+    driver: bridge
