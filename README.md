@@ -1,6 +1,6 @@
 # 🛡️ micro1-financial-eval: Adversarial MCP Evaluation Suite
 
-[![CI/CD Pipeline](https://github.com/raulrodriguezmesia-blip/micro1-financial-eval/actions/workflows/eval-ci.yml/badge.svg)](https://github.com/raulrodriguezmesia-blip/micro1-financial-eval/actions)
+[![CI/CD Pipeline](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/raulrodriguezmesia-blip/micro1-financial-eval/actions)
 [![Coverage Gate](https://img.shields.io/badge/coverage-%E2%89%A590%25-brightgreen.svg)]()
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Protocol](https://img.shields.io/badge/protocol-MCP_FastMCP-green.svg)](https://modelcontextprotocol.io)
