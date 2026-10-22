@@ -2,4 +2,4 @@ scenario_id: chaos_schema_drift
 chaos_mode: SCHEMA_DRIFT
 required_fields: [fromCurrency, toCurrency, amount, requestId]
 tool_name: convert_fx
-description: Schema drift: target_currency ausente del contrato
+description: "Schema drift: target_currency ausente del contrato"
