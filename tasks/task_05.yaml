@@ -1,0 +1,5 @@
+scenario_id: chaos_artificial_latency
+chaos_mode: ARTIFICIAL_LATENCY
+required_fields: [accountId, currency, balance]
+tool_name: get_balance
+description: Latencia inyectada (payload válido, delay aplicado)

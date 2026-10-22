@@ -1,0 +1,5 @@
+scenario_id: chaos_decoy_error
+chaos_mode: DECOY_ERROR
+required_fields: [requestId, error]
+tool_name: transfer_funds
+description: Error engañoso (decoy de fondos insuficientes)

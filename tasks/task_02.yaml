@@ -1,0 +1,5 @@
+scenario_id: NONE
+chaos_mode: NONE
+required_fields: [requestId, error]
+tool_name: transfer_funds
+description: Monto excede el límite de política de tesorería ($50,000)

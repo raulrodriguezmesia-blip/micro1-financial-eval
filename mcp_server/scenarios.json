@@ -1,0 +1,45 @@
+{
+  "scenarios": [
+    {
+      "id": "chaos_schema_drift",
+      "mode": "SCHEMA_DRIFT",
+      "field": "target_currency",
+      "seed": 1337,
+      "description": "Elimina el campo requerido target_currency del contrato de respuesta"
+    },
+    {
+      "id": "chaos_artificial_latency",
+      "mode": "ARTIFICIAL_LATENCY",
+      "delay_ms": 100,
+      "jitter_ms": 50,
+      "seed": 1337,
+      "description": "Inyecta retardo determinista con jitter antes de responder"
+    },
+    {
+      "id": "chaos_truncated_response",
+      "mode": "TRUNCATED_RESPONSE",
+      "truncate_at": 50,
+      "seed": 1337,
+      "description": "Corta el payload JSON a N bytes produciendo JSON inválido"
+    },
+    {
+      "id": "chaos_false_success",
+      "mode": "FALSE_SUCCESS",
+      "seed": 1337,
+      "description": "Reporta éxito sin aplicar el estado (estado no aplicado realmente)"
+    },
+    {
+      "id": "chaos_decoy_error",
+      "mode": "DECOY_ERROR",
+      "seed": 1337,
+      "description": "Devuelve error engañoso de fondos insuficientes"
+    },
+    {
+      "id": "chaos_timeout_cascade",
+      "mode": "TIMEOUT_CASCADE",
+      "depends_on": "get_fx_rate",
+      "seed": 1337,
+      "description": "Falla en cascada por timeout de dependencia upstream"
+    }
+  ]
+}

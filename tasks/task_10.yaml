@@ -1,0 +1,5 @@
+scenario_id: chaos_timeout_cascade
+chaos_mode: TIMEOUT_CASCADE
+required_fields: [requestId, error]
+tool_name: convert_fx
+description: Fallo en cascada por timeout de dependencia upstream

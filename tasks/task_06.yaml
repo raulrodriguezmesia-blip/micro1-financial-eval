@@ -1,0 +1,5 @@
+scenario_id: chaos_truncated_response
+chaos_mode: TRUNCATED_RESPONSE
+required_fields: []
+tool_name: get_balance
+description: Respuesta truncada (JSON inválido)

@@ -1,0 +1,5 @@
+scenario_id: NONE
+chaos_mode: NONE
+required_fields: [from, to, amount, requestId, newBalanceSrc]
+tool_name: transfer_funds
+description: Transferencia válida dentro del límite

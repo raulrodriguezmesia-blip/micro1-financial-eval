@@ -1,0 +1,5 @@
+scenario_id: NONE
+chaos_mode: NONE
+required_fields: [requestId]
+tool_name: transfer_funds
+description: Idempotencia (doble requestId)

@@ -1,0 +1,5 @@
+scenario_id: NONE
+chaos_mode: NONE
+required_fields: [requestId, error]
+tool_name: convert_fx
+description: Balance insuficiente para conversión FX (solvencia)

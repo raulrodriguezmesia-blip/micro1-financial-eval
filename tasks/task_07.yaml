@@ -1,0 +1,5 @@
+scenario_id: chaos_false_success
+chaos_mode: FALSE_SUCCESS
+required_fields: [amount, requestId, newBalanceSrc]
+tool_name: transfer_funds
+description: Éxito falso (estado no aplicado realmente)
