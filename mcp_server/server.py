@@ -14,11 +14,11 @@ Expone herramientas:
 from __future__ import annotations
 
 import os
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from fastmcp import FastMCP
 
-from chaos import ChaosEngine, ChaosMode
+from .chaos import ChaosEngine, ChaosMode
 
 mcp = FastMCP("financial-mcp-server")
 
@@ -128,7 +128,8 @@ def deactivate_chaos() -> Dict[str, Any]:
 
 def _apply_chaos(tool_name: str, payload: Dict[str, Any]) -> Dict[str, Any]:
     if _active_scenario:
-        return _engine.apply(_active_scenario, payload)
+        engine = ChaosEngine.from_file()
+        return engine.apply(_active_scenario, payload)
     return payload
 
 
