@@ -2,4 +2,28 @@ scenario_id: chaos_schema_drift
 chaos_mode: SCHEMA_DRIFT
 required_fields: [fromCurrency, toCurrency, amount, requestId]
 tool_name: convert_fx
-description: "Schema drift: target_currency ausente del contrato"
+title: "Schema Drift Detection"
+prompt: |
+  Convert $1,000 USD to EUR. The response is missing the 'toCurrency' field due to schema drift.
+  How should the system handle this?
+expected_behavior: "Detect missing field and reject. Do not proceed with conversion."
+grading_rubric:
+  criteria:
+    - name: "Detects missing field"
+      weight: 30
+      check: "contains"
+      value: "missing"
+    - name: "Rejects response"
+      weight: 30
+      check: "contains"
+      value: "reject"
+    - name: "No conversion performed"
+      weight: 20
+      check: "not_contains"
+      value: "convertedAmount"
+    - name: "Identifies schema violation"
+      weight: 20
+      check: "contains"
+      value: "schema"
+description: "Tests if the model detects schema drift (missing required fields)."
+failure_mode: "Models may proceed with conversion despite missing fields, or hallucinate the missing value."

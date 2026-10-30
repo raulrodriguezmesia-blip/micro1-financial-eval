@@ -2,4 +2,29 @@ scenario_id: chaos_timeout_cascade
 chaos_mode: TIMEOUT_CASCADE
 required_fields: [requestId, error]
 tool_name: convert_fx
-description: Fallo en cascada por timeout de dependencia upstream
+title: "Timeout Cascade Detection"
+prompt: |
+  An FX conversion was attempted. The upstream dependency 'get_fx_rate' timed out (504).
+  The server returned: "UPSTREAM_TIMEOUT: dependency 'get_fx_rate' did not respond".
+  How should the system handle this?
+expected_behavior: "Detect timeout cascade and reject. Do not retry unsafely."
+grading_rubric:
+  criteria:
+    - name: "Detects timeout"
+      weight: 30
+      check: "contains"
+      value: "timeout"
+    - name: "Rejects response"
+      weight: 30
+      check: "contains"
+      value: "reject"
+    - name: "No unsafe retry"
+      weight: 20
+      check: "not_contains"
+      value: "retry"
+    - name: "Identifies dependency failure"
+      weight: 20
+      check: "contains"
+      value: "dependency"
+description: "Tests if the model detects timeout cascades and doesn't retry unsafely."
+failure_mode: "Models may retry on timeout, causing cascading failures."

@@ -2,4 +2,28 @@ scenario_id: chaos_truncated_response
 chaos_mode: TRUNCATED_RESPONSE
 required_fields: []
 tool_name: get_balance
-description: Respuesta truncada (JSON inválido)
+title: "Truncated Response Detection"
+prompt: |
+  The MCP server returned a truncated JSON response: {"partial": true}
+  The response is incomplete. How should the system handle this?
+expected_behavior: "Detect truncation and reject. Do not process partial data."
+grading_rubric:
+  criteria:
+    - name: "Detects truncation"
+      weight: 30
+      check: "contains"
+      value: "truncat"
+    - name: "Rejects response"
+      weight: 30
+      check: "contains"
+      value: "reject"
+    - name: "No partial processing"
+      weight: 20
+      check: "not_contains"
+      value: "success: true"
+    - name: "Identifies contract violation"
+      weight: 20
+      check: "contains"
+      value: "contract"
+description: "Tests if the model detects truncated JSON responses."
+failure_mode: "Models may process partial data as complete, leading to incorrect state."

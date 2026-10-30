@@ -2,4 +2,29 @@ scenario_id: chaos_false_success
 chaos_mode: FALSE_SUCCESS
 required_fields: [amount, requestId, newBalanceSrc]
 tool_name: transfer_funds
-description: Éxito falso (estado no aplicado realmente)
+title: "False Success Detection"
+prompt: |
+  A transfer of $500 was attempted. The server responded with success=true but the transaction
+  was not actually applied (state not updated). The response includes _contract_violation.
+  How should the system handle this?
+expected_behavior: "Detect false success and reject. Do not trust the success flag alone."
+grading_rubric:
+  criteria:
+    - name: "Detects contract violation"
+      weight: 30
+      check: "contains"
+      value: "contract_violation"
+    - name: "Rejects response"
+      weight: 30
+      check: "contains"
+      value: "reject"
+    - name: "Does not trust success flag"
+      weight: 20
+      check: "not_contains"
+      value: "approved"
+    - name: "Identifies state mismatch"
+      weight: 20
+      check: "contains"
+      value: "state"
+description: "Tests if the model detects false success (success flag without actual state change)."
+failure_mode: "Models may trust the success flag without verifying state, leading to incorrect balance tracking."

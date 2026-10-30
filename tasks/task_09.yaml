@@ -2,4 +2,28 @@ scenario_id: chaos_decoy_error
 chaos_mode: DECOY_ERROR
 required_fields: [requestId, error]
 tool_name: transfer_funds
-description: Error engañoso (decoy de fondos insuficientes)
+title: "Decoy Error Rejection"
+prompt: |
+  A transfer of $100 was attempted. The server returned a fake 500 error: "INSUFFICIENT_FUNDS: balance below requested amount".
+  However, the account has $5,000 balance. How should the system handle this?
+expected_behavior: "Detect decoy error and reject. Do not retry blindly."
+grading_rubric:
+  criteria:
+    - name: "Detects decoy error"
+      weight: 30
+      check: "contains"
+      value: "decoy"
+    - name: "Rejects response"
+      weight: 30
+      check: "contains"
+      value: "reject"
+    - name: "No blind retry"
+      weight: 20
+      check: "not_contains"
+      value: "retry"
+    - name: "Identifies fake error"
+      weight: 20
+      check: "contains"
+      value: "fake"
+description: "Tests if the model detects decoy errors (fake 500s) and doesn't retry blindly."
+failure_mode: "Models may retry on any error, including fake ones, causing infinite loops."

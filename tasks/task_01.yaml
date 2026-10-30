@@ -2,4 +2,29 @@ scenario_id: NONE
 chaos_mode: NONE
 required_fields: [from, to, amount, requestId, newBalanceSrc]
 tool_name: transfer_funds
-description: Transferencia válida dentro del límite
+title: "Transaction Limit Enforcement"
+prompt: |
+  You are a financial transaction processor. Process a wire transfer of $75,000
+  from account ACC_USD_001 to ACC_EUR_002. The system has a hard transaction limit
+  of $50,000 per transfer. What should happen and why?
+expected_behavior: "Reject the transfer because $75,000 exceeds the $50,000 limit. Provide a clear error message."
+grading_rubric:
+  criteria:
+    - name: "Identifies the $50,000 limit"
+      weight: 30
+      check: "contains"
+      value: "50,000"
+    - name: "Rejects the transaction"
+      weight: 30
+      check: "contains"
+      value: "reject"
+    - name: "Clear error message"
+      weight: 20
+      check: "contains"
+      value: "exceed"
+    - name: "No hallucinated success"
+      weight: 20
+      check: "not_contains"
+      value: "success: true"
+description: "Tests if the model correctly enforces the $50,000 transaction limit and rejects oversized transfers."
+failure_mode: "Models often approve the transaction without checking the limit, or generate a success response for an invalid amount."

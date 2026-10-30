@@ -2,7 +2,8 @@
 grader/grade.py — Orquestador del eval micro1 (sin servidor vivo requerido).
 
 Lee tasks/task_*.yaml, construye payloads base embebidos, aplica caos determinista
-usando ChaosEngine, ejecuta validate_task (invariantes O(1)) y emite
+usando ChaosEngine, ejecuta validate_task (invariantes O(1)), llama a un LLM
+(o respuesta simulada), puntúa la respuesta con scorer (0-100) y emite
 results/grade_results.json con executionProof por tarea.
 """
 
@@ -10,7 +11,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import random
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -22,6 +22,8 @@ for _base in ("..", "."):
         sys.path.insert(0, _candidate)
 
 from grader.invariants import validate_task  # noqa: E402
+from grader.llm_caller import call_llm, get_provider  # noqa: E402
+from grader.scorer import score_response, aggregate_scores  # noqa: E402
 from mcp_server.chaos import ChaosEngine, ChaosMode  # noqa: E402
 
 
@@ -119,16 +121,20 @@ _TOOL_NAME: Dict[str, str] = {
 }
 
 
-def run_eval(tasks_dir: Path, output_path: Path) -> Dict[str, Any]:
+def run_eval(tasks_dir: Path, output_path: Path, use_llm: bool = True) -> Dict[str, Any]:
     engine = ChaosEngine()
     task_files = sorted(tasks_dir.glob("task_*.yaml"))
 
     results: List[Dict[str, Any]] = []
+    llm_scores: List[Dict[str, Any]] = []
+
     for task_file in task_files:
         task = _load_yaml(task_file)
         task_id = task_file.stem
         scenario_id = task.get("scenario_id") or ""
         chaos_mode = task.get("chaos_mode") or "NONE"
+        prompt = task.get("prompt", "")
+        rubric = task.get("grading_rubric", {})
 
         base_payload = _TASK_PAYLOADS.get(task_id, {})
         mutated = engine.apply(scenario_id, dict(base_payload))
@@ -152,26 +158,47 @@ def run_eval(tasks_dir: Path, output_path: Path) -> Dict[str, Any]:
             tool_name=tool_name,
         )
 
-        results.append(
-            {
-                "task_id": task_id,
-                "task_def": task_file.name,
-                "scenario_id": scenario_id,
-                "chaos_mode": chaos_mode,
-                "status": validation.status,
-                "rejected_reason": None if validation.status == "APPROVED" else validation.message,
-                "execution_proof": validation.execution_proof.to_dict(),
-                "mutated_payload": mutated,
-                "error": None,
-            }
-        )
+        # LLM evaluation (if enabled)
+        llm_response = ""
+        llm_score = None
+        if use_llm and prompt:
+            llm_response = call_llm(prompt, task_id)
+            llm_score = score_response(task_id, llm_response, rubric)
+
+        entry = {
+            "task_id": task_id,
+            "task_def": task_file.name,
+            "title": task.get("title", task_id),
+            "scenario_id": scenario_id,
+            "chaos_mode": chaos_mode,
+            "status": validation.status,
+            "rejected_reason": None if validation.status == "APPROVED" else validation.message,
+            "execution_proof": validation.execution_proof.to_dict(),
+            "mutated_payload": mutated,
+            "error": None,
+            "llm_evaluation": {
+                "prompt": prompt,
+                "model_response": llm_response,
+                "score": llm_score["score"] if llm_score else None,
+                "max_score": llm_score["max_score"] if llm_score else None,
+                "passed": llm_score["passed"] if llm_score else None,
+                "breakdown": llm_score["breakdown"] if llm_score else [],
+            } if use_llm else None,
+        }
+        results.append(entry)
+        if llm_score:
+            llm_scores.append(llm_score)
+
+    agg = aggregate_scores(llm_scores) if llm_scores else {}
 
     summary = {
         "eval": "MCP Contract Hallucination Eval",
+        "llm_provider": get_provider(),
         "total": len(results),
         "approved": sum(1 for r in results if r["status"] == "APPROVED"),
         "rejected": sum(1 for r in results if r["status"] == "REJECTED"),
         "errors": sum(1 for r in results if r.get("error")),
+        "llm_scores": agg,
         "results": results,
     }
 
@@ -212,21 +239,25 @@ def _parse_simple_yaml(path: Path) -> Dict[str, Any]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="micro1 Eval: MCP Contract Hallucination")
+    parser = argparse.ArgumentParser(description="micro1 Eval: MCP Contract Hallucination + LLM Grading")
     parser.add_argument("--tasks-dir", default="tasks", help="Directorio con task_*.yaml")
     parser.add_argument("--output", default="results/grade_results.json", help="Ruta de salida JSON")
+    parser.add_argument("--no-llm", action="store_true", help="Skip LLM evaluation (grader only)")
     args = parser.parse_args()
 
     tasks_dir = Path(args.tasks_dir).resolve()
     output_path = Path(args.output).resolve()
 
     files = list(tasks_dir.glob("task_*.yaml"))
-    print(f"Running eval on {len(files)} tasks...")
-    summary = run_eval(tasks_dir, output_path)
+    print(f"Running eval on {len(files)} tasks (LLM: {not args.no_llm})...")
+    summary = run_eval(tasks_dir, output_path, use_llm=not args.no_llm)
     print(
         f"Summary: {summary['approved']}/{summary['total']} approved, "
         f"{summary['rejected']} rejected, {summary['errors']} errors"
     )
+    if summary.get("llm_scores"):
+        agg = summary["llm_scores"]
+        print(f"LLM Scores: avg={agg.get('avg_score', 0)}, passed={agg.get('passed', 0)}/{agg.get('total_tasks', 0)}")
     print(f"Results written to {output_path}")
 
 

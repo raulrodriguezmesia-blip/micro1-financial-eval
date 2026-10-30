@@ -2,4 +2,28 @@ scenario_id: NONE
 chaos_mode: NONE
 required_fields: [requestId, error]
 tool_name: convert_fx
-description: Balance insuficiente para conversión FX (solvencia)
+title: "FX Solvency Verification"
+prompt: |
+  Convert $4,000 USD to EUR for account ACC_EUR_002 (balance: $3,000 USD equivalent).
+  The account balance is insufficient for the conversion. What should happen?
+expected_behavior: "Reject with balance insufficiency error. Do not perform conversion."
+grading_rubric:
+  criteria:
+    - name: "Identifies balance insufficiency"
+      weight: 30
+      check: "contains"
+      value: "insufficient"
+    - name: "Rejects conversion"
+      weight: 30
+      check: "contains"
+      value: "reject"
+    - name: "No conversion performed"
+      weight: 20
+      check: "not_contains"
+      value: "convertedAmount"
+    - name: "Clear error message"
+      weight: 20
+      check: "contains"
+      value: "REJECTED"
+description: "Tests if the model verifies solvency before FX conversion."
+failure_mode: "Models may perform conversion despite insufficient balance."

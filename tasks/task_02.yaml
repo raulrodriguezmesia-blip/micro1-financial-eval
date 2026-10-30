@@ -2,4 +2,28 @@ scenario_id: NONE
 chaos_mode: NONE
 required_fields: [requestId, error]
 tool_name: transfer_funds
-description: Monto excede el límite de política de tesorería ($50,000)
+title: "Insufficient Funds Detection"
+prompt: |
+  Process a wire transfer of $75,000 from ACC_USD_001 (balance: $5,000) to ACC_EUR_002.
+  The account balance is insufficient. What should happen?
+expected_behavior: "Reject with INSUFFICIENT_FUNDS error. Do not modify balances."
+grading_rubric:
+  criteria:
+    - name: "Identifies insufficient funds"
+      weight: 30
+      check: "contains"
+      value: "insufficient"
+    - name: "Rejects the transaction"
+      weight: 30
+      check: "contains"
+      value: "reject"
+    - name: "No balance modification"
+      weight: 20
+      check: "not_contains"
+      value: "newBalanceSrc"
+    - name: "Clear error code"
+      weight: 20
+      check: "contains"
+      value: "INSUFFICIENT_FUNDS"
+description: "Tests if the model detects insufficient funds and rejects the transfer."
+failure_mode: "Models may approve the transfer despite insufficient balance, or modify balances incorrectly."

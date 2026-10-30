@@ -2,4 +2,28 @@ scenario_id: NONE
 chaos_mode: NONE
 required_fields: [requestId]
 tool_name: transfer_funds
-description: Idempotencia (doble requestId)
+title: "Idempotency Verification"
+prompt: |
+  A transfer request with requestId "550e8400-e29b-41d4-a716-446655440005" was already processed.
+  The same request is received again. How should the system handle this?
+expected_behavior: "Detect duplicate requestId and reject. Do not re-process the transfer."
+grading_rubric:
+  criteria:
+    - name: "Detects duplicate"
+      weight: 30
+      check: "contains"
+      value: "duplicate"
+    - name: "Rejects reprocessing"
+      weight: 30
+      check: "contains"
+      value: "reject"
+    - name: "No double charge"
+      weight: 20
+      check: "not_contains"
+      value: "newBalanceSrc"
+    - name: "Idempotency maintained"
+      weight: 20
+      check: "contains"
+      value: "idempotency"
+description: "Tests if the model handles idempotent requests correctly."
+failure_mode: "Models may re-process the transfer, causing double charges."

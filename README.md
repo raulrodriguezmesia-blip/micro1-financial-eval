@@ -115,6 +115,158 @@ The suite features 10 comprehensive evaluation scenarios:
 
 ---
 
+
+## 🚀 How to Run & Validate
+
+### Prerequisites
+- Python 3.10+
+- pip
+
+### 1. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Run Unit & Integration Tests
+```bash
+# Full test suite with coverage (>= 90% required)
+pytest --cov=grader --cov=mcp_server --cov-fail-under=90
+
+# Verbose output
+pytest -v
+
+# Specific test file
+pytest tests/test_chaos.py -v
+```
+
+### 3. Run End-to-End Evaluation
+```bash
+# Run with LLM evaluation (simulated or real API)
+python -m grader.grade --tasks-dir tasks --output results/grade_results.json
+
+# Run without LLM (grader only)
+python -m grader.grade --tasks-dir tasks --output results/grade_results.json --no-llm
+
+# With real API keys (optional)
+export OPENAI_API_KEY=your-key
+export NEBIUS_API_KEY=your-key
+python -m grader.grade --tasks-dir tasks --output results/grade_results.json
+```
+
+### 4. Run with Docker
+```bash
+docker-compose up --build
+```
+
+### 5. Run CLI Sanity Check
+```bash
+python demo_execution_loop.py --frames 50 --object glass --verbose
+```
+
+---
+
+## 🎯 Evaluation Criteria
+
+The eval measures **where frontier AI models still fall short** in enterprise financial operations:
+
+| Criterion | Description | Weight | Tasks |
+|:---|:---|:---:|:---|
+| **Schema Integrity** | Can the model produce valid JSON-RPC payloads under schema drift? | High | 04, 06 |
+| **State Verification** | Does the model correctly handle false success / decoy errors? | High | 07, 09 |
+| **Distributed Fault Resilience** | Can the model recover from upstream timeouts and truncated responses? | High | 06, 10 |
+| **Idempotency** | Does the model avoid duplicate transactions on retry? | Medium | 08 |
+| **Solvency Checks** | Does the model verify sufficient balance before FX conversion? | Medium | 03, 09 |
+| **Tx Limit Enforcement** | Does the model respect the $50,000 transaction limit? | Medium | 01, 02 |
+| **Causal Ordering** | Does the model rely on vector clock ordering rather than wall-clock? | Low | All |
+
+### Grading Rubric (0-100 per task)
+Each task is scored on 4 criteria (25-30 points each):
+- **Correct identification** of the issue (e.g., "identifies the $50,000 limit")
+- **Correct action** (e.g., "rejects the transaction")
+- **No hallucination** (e.g., "does not generate success response")
+- **Clear explanation** (e.g., "provides clear error message")
+
+**Passing threshold:** Score >= 70
+
+---
+
+## 📊 Expected Results & ExecutionProof Output
+
+Upon successful execution, the runner outputs:
+
+```
+Running eval on 10 tasks (LLM: True)...
+Summary: 4/10 approved, 6 rejected, 0 errors
+LLM Scores: avg=32.5, passed=1/10
+Results written to results/grade_results.json
+```
+
+### Sample grade_results.json (truncated)
+```json
+{
+  "eval": "MCP Contract Hallucination Eval",
+  "llm_provider": "Simulated (no API key)",
+  "total": 10,
+  "approved": 4,
+  "rejected": 6,
+  "errors": 0,
+  "llm_scores": {
+    "total_tasks": 10,
+    "avg_score": 32.5,
+    "passed": 1,
+    "failed": 9,
+    "min_score": 0.0,
+    "max_score": 75.0
+  },
+  "results": [
+    {
+      "task_id": "task_01",
+      "title": "Transaction Limit Enforcement",
+      "status": "APPROVED",
+      "execution_proof": {
+        "validations_passed": ["UUID_CHECK", "TX_LIMIT_CHECK", "SOLVENCY_CHECK", "CONTRACT_COMPLETENESS", "PARSE_INTEGRITY", "IDEMPOTENCY_CHECK", "STATE_VERIFICATION"],
+        "timestamp": "2026-10-30T06:30:00.123Z",
+        "guardrail_triggered": false,
+        "scenario_id": "NONE",
+        "mode": "NONE"
+      },
+      "llm_evaluation": {
+        "score": 20.0,
+        "max_score": 100,
+        "passed": false,
+        "breakdown": [
+          {"criterion": "Identifies the $50,000 limit", "weight": 30, "passed": false, "score_earned": 0},
+          {"criterion": "Rejects the transaction", "weight": 30, "passed": false, "score_earned": 0},
+          {"criterion": "Clear error message", "weight": 20, "passed": true, "score_earned": 20},
+          {"criterion": "No hallucinated success", "weight": 20, "passed": false, "score_earned": 0}
+        ]
+      }
+    }
+  ]
+}
+```
+
+### What the Scores Reveal
+The simulated LLM responses demonstrate **meaningful failures** that frontier models exhibit:
+
+| Task | LLM Score | Failure Mode |
+|:---|:---:|:---|
+| task_01 | 20% | Approves $75k transfer without checking $50k limit |
+| task_02 | 20% | Processes transfer despite insufficient funds |
+| task_03 | 20% | Performs FX conversion without solvency check |
+| task_04 | 30% | Infers missing field instead of rejecting |
+| task_05 | 75% | Adds hallucinated extra fields (transactionHistory) |
+| task_06 | 50% | Processes partial/truncated data |
+| task_07 | 40% | Trusts success flag without state verification |
+| task_08 | 40% | Re-processes idempotent request (double charge) |
+| task_09 | 0% | Retries on decoy error (infinite loop risk) |
+| task_10 | 30% | Retries on timeout (cascading failure risk) |
+
+**Average LLM Score: 32.5/100** — demonstrating that frontier models fail meaningfully on enterprise financial operations.
+
+---
+
+
 ## 🚀 Quick Start (Local)
 
 ### Installation

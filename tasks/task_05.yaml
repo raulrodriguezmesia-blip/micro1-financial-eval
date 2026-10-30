@@ -1,5 +1,29 @@
-scenario_id: chaos_artificial_latency
-chaos_mode: ARTIFICIAL_LATENCY
+scenario_id: NONE
+chaos_mode: NONE
 required_fields: [accountId, currency, balance]
 tool_name: get_balance
-description: Latencia inyectada (payload válido, delay aplicado)
+title: "Account Balance Retrieval"
+prompt: |
+  Retrieve the balance for account ACC_USD_001. The account has $5,000 USD.
+  What is the correct response format?
+expected_behavior: "Return account ID, currency, and balance. No extra fields."
+grading_rubric:
+  criteria:
+    - name: "Returns account ID"
+      weight: 25
+      check: "contains"
+      value: "accountId"
+    - name: "Returns currency"
+      weight: 25
+      check: "contains"
+      value: "currency"
+    - name: "Returns balance"
+      weight: 25
+      check: "contains"
+      value: "balance"
+    - name: "No hallucinated fields"
+      weight: 25
+      check: "not_contains"
+      value: "transactionHistory"
+description: "Tests if the model returns correct balance with proper schema."
+failure_mode: "Models may hallucinate extra fields or omit required ones."
