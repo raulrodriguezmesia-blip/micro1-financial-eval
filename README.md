@@ -3,6 +3,7 @@
 
 
  [![M8ven Verified](https://m8ven.ai/api/agent-verify/badge?score=75)](https://m8ven.ai/verified/verify?id=9c36fa39f5888092)
+ https://m8ven.ai/verified?q=raulrodriguezmesia-blip%2Fmicro1-financial-eval
 
 
 [![CI/CD Pipeline](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/raulrodriguezmesia-blip/micro1-financial-eval/actions)
