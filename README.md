@@ -2,6 +2,7 @@
 ## Deterministic Benchmarking & Chaos Engineering Framework for Model Context Protocol (MCP) Financial Agents
 
 [![M8ven Verificado](https://m8ven.ai/api/agent-verify/badge?score=75)](https://m8ven.ai/verified/verify?id=3949a87d1c055744)
+[![M8ven Score](https://m8ven.ai/badge/mcp/raulrodriguezmesia-blip/micro1-financial-eval)](https://m8ven.ai/mcp/raulrodriguezmesia-blip/micro1-financial-eval?s=readme)
 
 
 
