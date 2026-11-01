@@ -3,7 +3,6 @@
 
 
  [![M8ven Verified](https://m8ven.ai/api/agent-verify/badge?score=75)](https://m8ven.ai/verified/verify?id=9c36fa39f5888092)
- [![M8ven Score](https://m8ven.ai/badge/mcp/rmohaan-mcp-api-dgvadd?v=17daa5a5082700d2f7ce9905d48f0a16)](https://m8ven.ai/mcp/rmohaan-mcp-api-dgvadd?s=readme)
 
 
 
