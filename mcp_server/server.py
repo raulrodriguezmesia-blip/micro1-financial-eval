@@ -37,7 +37,7 @@ def _active_tool_name() -> str:
     return ""
 
 
-@mcp.tool()
+@mcp.tool(annotations={"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False})
 def get_balance(accountId: str) -> Dict[str, Any]:
     """Devuelve el saldo de una cuenta."""
     payload = {
@@ -49,7 +49,7 @@ def get_balance(accountId: str) -> Dict[str, Any]:
     return _apply_chaos("get_balance", payload)
 
 
-@mcp.tool()
+@mcp.tool(annotations={"readOnlyHint": False, "destructiveHint": True, "idempotentHint": False, "openWorldHint": False})
 def transfer_funds(from_: str, to: str, amount: float) -> Dict[str, Any]:
     """Transfiere fondos entre cuentas."""
     from_balance = _balances.get(from_, 0.0)
@@ -74,7 +74,7 @@ def transfer_funds(from_: str, to: str, amount: float) -> Dict[str, Any]:
     return _apply_chaos("transfer_funds", payload)
 
 
-@mcp.tool()
+@mcp.tool(annotations={"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False})
 def convert_fx(fromCurrency: str, toCurrency: str, amount: float) -> Dict[str, Any]:
     """Convierte una cantidad entre monedas (simulado)."""
     payload = {
@@ -88,7 +88,7 @@ def convert_fx(fromCurrency: str, toCurrency: str, amount: float) -> Dict[str, A
     return _apply_chaos("convert_fx", payload)
 
 
-@mcp.tool()
+@mcp.tool(annotations={"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False})
 def list_accounts() -> Dict[str, Any]:
     """Lista las cuentas disponibles."""
     payload = {
@@ -98,7 +98,7 @@ def list_accounts() -> Dict[str, Any]:
     return _apply_chaos("list_accounts", payload)
 
 
-@mcp.tool()
+@mcp.tool(annotations={"readOnlyHint": False, "destructiveHint": True, "idempotentHint": False, "openWorldHint": False})
 def reset_state() -> Dict[str, Any]:
     """Reinicia el estado en memoria (útil para pruebas)."""
     _balances.clear()
@@ -106,7 +106,7 @@ def reset_state() -> Dict[str, Any]:
     return {"success": True, "message": "state reset"}
 
 
-@mcp.tool()
+@mcp.tool(annotations={"readOnlyHint": False, "destructiveHint": True, "idempotentHint": False, "openWorldHint": False})
 def activate_chaos(scenario_id: str) -> Dict[str, Any]:
     """Activa un escenario de caos por su id."""
     global _active_scenario
@@ -117,7 +117,7 @@ def activate_chaos(scenario_id: str) -> Dict[str, Any]:
     return {"success": True, "scenario_id": scenario_id, "mode": engine.by_id[scenario_id].mode.value}
 
 
-@mcp.tool()
+@mcp.tool(annotations={"readOnlyHint": False, "destructiveHint": True, "idempotentHint": False, "openWorldHint": False})
 def deactivate_chaos() -> Dict[str, Any]:
     """Desactiva cualquier escenario de caos activo."""
     global _active_scenario
